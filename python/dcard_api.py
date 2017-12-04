@@ -149,7 +149,7 @@ def dcard_funtion4(data):
         max_num2=len(data2)
         '''
     controller=1
-    while controller!=total_number:
+    while controller!=(int(total_number)):
         print("正在合併"+file_name_list[controller]+"的文章與刪除重覆文章")
         with open(file_name_list[controller]+".json", 'r',encoding='utf-8') as fp:
             data2 = json.load(fp)
