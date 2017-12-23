@@ -1,12 +1,15 @@
 # -*- coding: utf-8 -*-
-#dcard_api_ver1.5.py
-#1.3breakdate的問題改為breakdate2,3;仍然存在沒有breakdate的問題
+#dcard_api_ver1.8.py
+#1.3breakdate的問題改為breakdate2,3;仍然存在沒有breakdate的問題,可新增:日期搜索範圍,range_From_To_
 #1.4新增搜尋功能,搜尋所有版,可改為搜尋指定版
+#1.7新增以多個關鍵字各自搜尋文章的功能
+#1.8新增資料夾內所有JSON檔的合併與刪除重覆文章的功能
 import requests
 from urllib.request import urlopen
 from bs4 import BeautifulSoup
 import json
 import datetime
+import os
 
 #search_keyword="實習"
 
@@ -125,7 +128,7 @@ def dcard_funtion2():
 
 def dcard_funtion4(data):
     max_num=len(data)
-    print(max_num)
+    #print(max_num)
     #count_number=1
     #print(type(count_number))
     #while(count_number!=total_number):
@@ -149,9 +152,10 @@ def dcard_funtion4(data):
         max_num2=len(data2)
         '''
     controller=1
+    repeated_article_id=[]
     while controller!=(int(total_number)):
         print("正在合併"+file_name_list[controller]+"的文章與刪除重覆文章")
-        with open(file_name_list[controller]+".json", 'r',encoding='utf-8') as fp:
+        with open(file_name_list[controller], 'r',encoding='utf-8') as fp:
             data2 = json.load(fp)
         max_num2=len(data2)
         for i in range(0,max_num2):
@@ -159,7 +163,8 @@ def dcard_funtion4(data):
             count=0
             for j in range(0,max_num):
                 if data2[i]['id']==data[j]['id']:
-                    print(data2[i]['id'])
+                    #print(data2[i]['id'])
+                    repeated_article_id.append(data2[i]['id'])
                     break
                 else:
                     count=count+1
@@ -167,8 +172,12 @@ def dcard_funtion4(data):
                         data.append(data2[i])
                         break    
         controller=controller+1
-    
-
+        if controller==(int(total_number)):
+            repeated_article_num=len(repeated_article_id)
+            print("重覆文章的數目為"+str(repeated_article_num)+",重覆文章的ID如下:")
+            #print(type(repeated_article_id))
+            for repeatedarticleid in repeated_article_id:
+                print(repeatedarticleid)
     return data
     
     
@@ -199,12 +208,12 @@ def keyword_100():
     res=requests.get(url)
     data=[]
     data=res.json()
-    print("100")
+    print("已完成:",round(100/1000*100),"%")
     return data
 
 def keyword_after_100(i):
     i=100*i
-    print(i+100)    
+    print("已完成:",round((i+100)/1100*100),"%")    
     url='https://www.dcard.tw/_api/search/posts?query="'+search_keyword+'"&limit=100'+"&offset="+str(i)
     res= requests.get(url)
     data2=[]
@@ -223,12 +232,14 @@ if __name__=='__main__':
         print("==================================")
         print("\tDcard API 之功能列表")
         print("==================================")
-        print("1 選擇指定看板，抓最新文章(by日期)")
-        print("2 選擇json檔案，更新其內文content")
-        print("3 使用關鍵字搜尋文章")
-        print("4 選擇json檔案，合併所有文章且刪除重覆文章")
-        print("0 離開本程式")
-        choose=input("\n請輸入功能編號(0-4):")
+        print("1) 選擇指定看板，抓最新文章(by日期)")
+        print("2) 選擇json檔案，更新其完整的內文content")
+        print("3) 使用單個或多個關鍵字搜尋文章")
+        print("4) 合併json檔的所有文章並刪除重覆文章")
+        print("5) 抓指定文章(by post_id)")
+        print("6) 選擇json檔案，更新其完整的留言comment")
+        print("0) 離開本程式")
+        choose=input("\n請輸入功能編號(0-6):")
         print("你選擇的功能為",choose)
 
         if choose=="1":
@@ -328,44 +339,107 @@ if __name__=='__main__':
             print("\nDONE,已完成JSON檔案:"+str(json_file_name)+"的更改\n")
             #print(data)
         elif choose=='3':
-            search_keyword=input("請輸入要搜尋的關鍵字:")
-            data=keyword_100()
-            #print(data)
-            for i in range(1,11):
-                data2=keyword_after_100(i)
-                data=data+data2
-            #for j in range(0,1100):
-            #   getcontent(j)
-            max_num=len(data)
-            #print("總共抓到共",max_num,"筆的資料")
-            #for j in range(0,max_num):
-            #    print(data[j]['id'])
-            print("DONE,已完成處理",max_num,"筆有關:"+search_keyword+"的資料")
-            with open("dcard_"+search_keyword+"_"+str(max_num)+".json", 'w',encoding='utf-8') as fp:
-                    json.dump(data,fp,sort_keys=False,indent=10,ensure_ascii=False)
+            multi_keyword_choose=input("使用多個關鍵字各別搜尋文章?(Y/N):")
+            if multi_keyword_choose=='Y':
+                multi_keyword_num=input("請輸入關鍵字的數目:")
+                keyword_list=[]
+                for i in range(0,int(multi_keyword_num)):
+                    temp_keyword=input("請輸入第"+str(i+1)+"個關鍵字:")    
+                    keyword_list.insert(i,temp_keyword)
+                print("已完成所有關鍵字的輸入")
+                print("所輸入的關鍵字為如下:")
+                print(keyword_list)
+
+                for j in range(0,int(multi_keyword_num)):
+                    search_keyword=keyword_list[j]
+                    data=keyword_100()
+                    for i in range(1,11):
+                        data2=keyword_after_100(i)
+                        data=data+data2
+                    max_num=len(data)
+                    print("DONE,共有"+str(max_num)+"筆有關:"+search_keyword+"的資料")
+                    with open("dcard_"+search_keyword+"_"+str(max_num)+".json", 'w',encoding='utf-8') as fp:
+                        json.dump(data,fp,sort_keys=False,indent=10,ensure_ascii=False)
+
+            elif multi_keyword_choose=='N': 
+                search_keyword=input("請輸入要搜尋的關鍵字:")
+                data=keyword_100()
+                #print(data)
+                for i in range(1,11):
+                    data2=keyword_after_100(i)
+                    data=data+data2
+                #for j in range(0,1100):
+                #   getcontent(j)
+                max_num=len(data)
+                #print("總共抓到共",max_num,"筆的資料")
+                #for j in range(0,max_num):
+                #    print(data[j]['id'])
+                print("DONE,共有"+str(max_num)+"筆有關:"+search_keyword+"的資料")
+                with open("dcard_"+search_keyword+"_"+str(max_num)+".json", 'w',encoding='utf-8') as fp:
+                        json.dump(data,fp,sort_keys=False,indent=10,ensure_ascii=False)
+
         elif choose=='4':
-            total_number=input("請輸入要合併所有文章與刪除重覆文章的JSON數目(如:5):")
-            file_name_list=[]
-            for i in range(0,int(total_number)):
-                temp_num=int(i)+1
-                #print(type(temp_num))
-                temp_str=(str(temp_num))
-                question="請輸入第"+temp_str+"個JSON檔名稱:"
-                temp_str2=input(question)
-                file_name_list.append(temp_str2)
-    
-            #json_file_name=input("請輸入第1個JSON檔案的名稱(如:abc):")
-            with open(file_name_list[0]+".json", 'r',encoding='utf-8') as fp:
-                data = json.load(fp)
-            alldata=dcard_funtion4(data)
-            print("合併與刪除文章已經完成")
-            output_json_name=input("請輸入即將輸出的JSON檔案名稱(如:cba):")
-            max_num3=len(alldata)
-            with open(output_json_name+"_"+str(max_num3)+".json", 'w',encoding='utf-8') as fp:
-                json.dump(alldata,fp,sort_keys=False,indent=10,ensure_ascii=False)
-            #print(type(data))
-            print("最終data的資料大小為",len(data),"筆")
-            print("\nDONE,已完成輸出JSON檔案:"+str(output_json_name)+"_"+str(max_num3)+".json\n")
+            inputbyfile=input("是否合併所有文章與刪除重覆文章在同一資料夾的所有JSON檔?(Y/N):")
+            if  inputbyfile=='Y':
+                YorN=input("預設JSON檔資料夾為(./JSON),是否需要修改?(Y/N):")
+                if YorN=='Y':
+                    dirname=input("請輸入JSON檔資料夾的路徑:")
+                elif YorN=='N':
+                    dirname="json"
+                file_name_list=[]
+                for filename in os.listdir(dirname):
+                    #print(os.path.join(dirname, filename))
+                    file_name_list.append(os.path.join(dirname, filename))
+                print(file_name_list)
+                total_number=len(file_name_list)
+                #print(total_number)
+                with open(file_name_list[0], 'r',encoding='utf-8') as fp:
+                    data = json.load(fp)
+                alldata=dcard_funtion4(data)
+
+                print("合併與刪除文章已經完成")
+                output_json_name=input("請輸入即將輸出的JSON檔案名稱(如:cba):")
+                max_num3=len(alldata)
+                with open(output_json_name+"_"+str(max_num3)+".json", 'w',encoding='utf-8') as fp:
+                    json.dump(alldata,fp,sort_keys=False,indent=10,ensure_ascii=False)
+                #print(type(data))
+                print("最終data的資料大小為",len(data),"筆")
+                print("\nDONE,已完成輸出JSON檔案:"+str(output_json_name)+"_"+str(max_num3)+".json\n")
+            
+            elif inputbyfile=='N':
+                total_number=input("請輸入要合併所有文章與刪除重覆文章的JSON數目(如:5):")
+                file_name_list=[]
+                for i in range(0,int(total_number)):
+                    temp_num=int(i)+1
+                    #print(type(temp_num))
+                    temp_str=(str(temp_num))
+                    question="請輸入第"+temp_str+"個JSON檔名稱(如:abc.json):"
+                    temp_str2=input(question)
+                    file_name_list.append(temp_str2)
+
+                #json_file_name=input("請輸入第1個JSON檔案的名稱(如:abc.json):")
+                with open(file_name_list[0], 'r',encoding='utf-8') as fp:
+                    data = json.load(fp)
+                alldata=dcard_funtion4(data)
+                print("合併與刪除文章已經完成")
+                output_json_name=input("請輸入即將輸出的JSON檔案名稱(如:cba):")
+                max_num3=len(alldata)
+                with open(output_json_name+"_"+str(max_num3)+".json", 'w',encoding='utf-8') as fp:
+                    json.dump(alldata,fp,sort_keys=False,indent=10,ensure_ascii=False)
+                #print(type(data))
+                print("最終data的資料大小為",len(data),"筆")
+                print("\nDONE,已完成輸出JSON檔案:"+str(output_json_name)+"_"+str(max_num3)+".json\n")
+
+        elif choose=='5':
+            post_id=input("請輸入文章的編號id:")
+            url="https://www.dcard.tw/_api/posts/"+str(post_id)
+            res=requests.get(url)
+            post_data=[]
+            post_data=res.json()
+            with open(str(post_id)+".json", 'w',encoding='utf-8') as fp:
+                json.dump(post_data,fp,sort_keys=False,indent=10,ensure_ascii=False)
+            print("已完成文章ID:"+str(post_id)+"的json檔的輸出")
+            
         elif choose=='0':
             break
         else:
