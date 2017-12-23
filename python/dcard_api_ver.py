@@ -1,17 +1,16 @@
 # -*- coding: utf-8 -*-
 #dcard_api_ver1.8.py
-#1.3breakdate的問題改為breakdate2,3;仍然存在沒有breakdate的問題,可新增:日期搜索範圍,range_From_To_
+#1.3breakdate的問題改為breakdate2,3;仍然存在沒有breakdate的問題,待新增:日期搜索範圍,range_From_To_
 #1.4新增搜尋功能,搜尋所有版,可改為搜尋指定版
 #1.7新增以多個關鍵字各自搜尋文章的功能
 #1.8新增資料夾內所有JSON檔的合併與刪除重覆文章的功能
+#1.9新增更新json檔內所有文章的留言的功能
 import requests
 from urllib.request import urlopen
 from bs4 import BeautifulSoup
 import json
 import datetime
 import os
-
-#search_keyword="實習"
 
 def findforum():
     url='https://www.dcard.tw/_api/forums'
@@ -88,43 +87,7 @@ def newestpostsafter100():
             eachdata.append(temp_data)
     return eachdata
 
-def dcard_funtion2():
-    max_num=len(data)
-    print(max_num)
-    done_num=0
-    #error_dict={}
-    #error_list=[]
-    for i in range(0,max_num):
-        try:
-            post_id=data[i]['id']
-            url="https://www.dcard.tw/_api/posts/"+str(post_id)
-            res=requests.get(url)
-            post_data=[]
-            post_data=res.json()
-            if(len(post_data)!=3):
-                data[i]['excerpt']=post_data['content'].replace('\n',' ')
-                done_num+=1
-                print(done_num)
-            else:
-                done_num+=1
-                print(done_num)
-        except:
-            while True:
-                post_id=data[i]['id']
-                url="https://www.dcard.tw/_api/posts/"+str(post_id)
-                res=requests.get(url)
-                post_data=[]
-                post_data=res.json()
-                if data[i]['id']==post_data['id'] or (len(post_data)!=3):
-                    data[i]['excerpt']=post_data['content'].replace('\n',' ')
-                    done_num+=1
-                    print(done_num)
-                    break
-                elif (len(post_data)==3):
-                    done_num+=1
-                    print(done_num)
-                    break
-    return data
+
 
 def dcard_funtion4(data):
     max_num=len(data)
@@ -202,6 +165,127 @@ def dcard_funtion4(data):
     
     return data    
     '''
+def dcard_funtion5():
+    max_num=len(data)
+    print(max_num)
+    done_num=0
+    #error_dict={}
+    #error_list=[]
+    for i in range(0,max_num):
+        try:
+            post_id=data[i]['id']
+            url="https://www.dcard.tw/_api/posts/"+str(post_id)
+            res=requests.get(url)
+            post_data=[]
+            post_data=res.json()
+            if(len(post_data)!=3):
+                data[i]['excerpt']=post_data['content'].replace('\n',' ')
+                done_num+=1
+                print(done_num)
+            else:
+                done_num+=1
+                print(done_num)
+        except:
+            while True:
+                post_id=data[i]['id']
+                url="https://www.dcard.tw/_api/posts/"+str(post_id)
+                res=requests.get(url)
+                post_data=[]
+                post_data=res.json()
+                if data[i]['id']==post_data['id'] or (len(post_data)!=3):
+                    data[i]['excerpt']=post_data['content'].replace('\n',' ')
+                    done_num+=1
+                    print(done_num)
+                    break
+                elif (len(post_data)==3):
+                    done_num+=1
+                    print(done_num)
+                    break
+    return data
+
+def dcard_funtion6():
+    print(len(data))
+    for i in range (0,len(data)):
+        try:
+            post_id=data[i]['id']
+            percentage=(i/len(data)*100)
+            print("已完成:"+str(round(percentage))+"%,正在處理第"+str(i)+"筆資料:",post_id)
+
+            #post_id="227958333"
+            url="https://www.dcard.tw/_api/posts/"+str(post_id)+"/comments?limit=100"
+            res=requests.get(url)
+            comment_data=[]
+            comment_data=res.json()
+            comment_data_num=len(comment_data)
+            #print(comment_data_num) 不要刪
+            if comment_data_num!=0:
+                if comment_data_num==100:
+                    loop=0
+                    after_floor=comment_data_num #after_floor=100 初始值
+                    while loop==0:
+                        #print("loop")
+                        url2="https://www.dcard.tw/_api/posts/"+str(post_id)+"/comments?limit=100&&after="+str(after_floor)
+                        res2=requests.get(url2)
+                        after_comment_data=[]
+                        after_comment_data=res2.json()
+                        after_comment_data_num=len(after_comment_data)
+                        #print(after_comment_data_num)
+                        for i in range(0,after_comment_data_num):
+                            comment_data.append(after_comment_data[i])
+                        if after_comment_data_num<100:
+                            loop=1
+                        elif after_comment_data_num==100:
+                            after_floor=after_floor+100
+                    data[i]["comments"]=comment_data
+
+                    #https://www.dcard.tw/_api/posts/227956818/comments?limit=100&after=100
+                elif comment_data_num<100:
+                    #json_file_name=post_id+".json"
+                    data[i]["comments"]=comment_data
+            elif comment_data_num==0:
+                print("Comment內容為空")
+        except:
+                while True:
+                    post_id=data[i]['id']
+                    percentage=(i/len(data)*100)
+                    print("已完成:"+str(round(percentage))+"%,正在處理第"+str(i)+"筆資料:",post_id)
+
+                    #post_id="227958333"
+                    url="https://www.dcard.tw/_api/posts/"+str(post_id)+"/comments?limit=100"
+                    res=requests.get(url)
+                    comment_data=[]
+                    comment_data=res.json()
+                    comment_data_num=len(comment_data)
+                    #print(comment_data_num) 不要刪
+                    if comment_data_num!=0:
+                        if comment_data_num==100:
+                            loop=0
+                            after_floor=comment_data_num #after_floor=100 初始值
+                            while loop==0:
+                                #print("loop")
+                                url2="https://www.dcard.tw/_api/posts/"+str(post_id)+"/comments?limit=100&&after="+str(after_floor)
+                                res2=requests.get(url2)
+                                after_comment_data=[]
+                                after_comment_data=res2.json()
+                                after_comment_data_num=len(after_comment_data)
+                                #print(after_comment_data_num)
+                                for i in range(0,after_comment_data_num):
+                                    comment_data.append(after_comment_data[i])
+                                if after_comment_data_num<100:
+                                    loop=1
+                                elif after_comment_data_num==100:
+                                    after_floor=after_floor+100
+                            data[i]["comments"]=comment_data
+                            break
+                            #https://www.dcard.tw/_api/posts/227956818/comments?limit=100&after=100
+                        elif comment_data_num<100:
+                            #json_file_name=post_id+".json"
+                            data[i]["comments"]=comment_data
+                            break
+                    elif comment_data_num==0:
+                        #print("Comment內容為空")
+                        break
+    return data
 
 def keyword_100():
     url='https://www.dcard.tw/_api/search/posts?query="'+search_keyword+'"&limit=100'
@@ -233,10 +317,10 @@ if __name__=='__main__':
         print("\tDcard API 之功能列表")
         print("==================================")
         print("1) 選擇指定看板，抓最新文章(by日期)")
-        print("2) 選擇json檔案，更新其完整的內文content")
-        print("3) 使用單個或多個關鍵字搜尋文章")
+        print("2) 使用單個或多個關鍵字搜尋文章")
+        print("3) 抓指定文章(by post_id)")
         print("4) 合併json檔的所有文章並刪除重覆文章")
-        print("5) 抓指定文章(by post_id)")
+        print("5) 選擇json檔案，更新其完整的內文content")
         print("6) 選擇json檔案，更新其完整的留言comment")
         print("0) 離開本程式")
         choose=input("\n請輸入功能編號(0-6):")
@@ -327,18 +411,8 @@ if __name__=='__main__':
                 forum_name=data[0]['forumAlias']
                 with open(str(forum_name)+"FromDcard_"+str(num_of_articles)+"_"+time+".json", 'w',encoding='utf-8') as fp:
                         json.dump(data,fp,sort_keys=False,indent=10,ensure_ascii=False)
+        
         elif choose=='2':
-            #done_num=0
-            json_file_name=input("請輸入JSON檔案名稱(如:abc.json):")
-            with open(json_file_name, 'r',encoding='utf-8') as fp:
-                data = json.load(fp)
-            data=dcard_funtion2()
-            with open(json_file_name, 'w',encoding='utf-8') as fp:
-                json.dump(data,fp,sort_keys=False,indent=10,ensure_ascii=False)
-            #print(type(data))
-            print("\nDONE,已完成JSON檔案:"+str(json_file_name)+"的更改\n")
-            #print(data)
-        elif choose=='3':
             multi_keyword_choose=input("使用多個關鍵字各別搜尋文章?(Y/N):")
             if multi_keyword_choose=='Y':
                 multi_keyword_num=input("請輸入關鍵字的數目:")
@@ -377,6 +451,16 @@ if __name__=='__main__':
                 print("DONE,共有"+str(max_num)+"筆有關:"+search_keyword+"的資料")
                 with open("dcard_"+search_keyword+"_"+str(max_num)+".json", 'w',encoding='utf-8') as fp:
                         json.dump(data,fp,sort_keys=False,indent=10,ensure_ascii=False)
+                        
+        elif choose=='3':
+            post_id=input("請輸入文章的編號id:")
+            url="https://www.dcard.tw/_api/posts/"+str(post_id)
+            res=requests.get(url)
+            post_data=[]
+            post_data=res.json()
+            with open(str(post_id)+".json", 'w',encoding='utf-8') as fp:
+                json.dump(post_data,fp,sort_keys=False,indent=10,ensure_ascii=False)
+            print("已完成文章ID:"+str(post_id)+"的json檔的輸出")
 
         elif choose=='4':
             inputbyfile=input("是否合併所有文章與刪除重覆文章在同一資料夾的所有JSON檔?(Y/N):")
@@ -431,15 +515,27 @@ if __name__=='__main__':
                 print("\nDONE,已完成輸出JSON檔案:"+str(output_json_name)+"_"+str(max_num3)+".json\n")
 
         elif choose=='5':
-            post_id=input("請輸入文章的編號id:")
-            url="https://www.dcard.tw/_api/posts/"+str(post_id)
-            res=requests.get(url)
-            post_data=[]
-            post_data=res.json()
-            with open(str(post_id)+".json", 'w',encoding='utf-8') as fp:
-                json.dump(post_data,fp,sort_keys=False,indent=10,ensure_ascii=False)
-            print("已完成文章ID:"+str(post_id)+"的json檔的輸出")
-            
+            #done_num=0
+            json_file_name=input("請輸入JSON檔案名稱(如:abc.json):")
+            with open(json_file_name, 'r',encoding='utf-8') as fp:
+                data = json.load(fp)
+            data=dcard_funtion5()
+            with open(json_file_name, 'w',encoding='utf-8') as fp:
+                json.dump(data,fp,sort_keys=False,indent=10,ensure_ascii=False)
+            #print(type(data))
+            print("\nDONE,已完成JSON檔案:"+str(json_file_name)+"的更改\n")
+            #print(data)
+        
+        elif choose=='6':
+            #post_id="227958333" #Comment內容為空 :[]
+            json_file_name=input("請輸入json檔的名稱(abc.json):")
+            with open(json_file_name, 'r',encoding='utf-8') as fp:
+                data = json.load(fp)
+            data=dcard_funtion6()
+            json_file_name=input("請輸入輸出的JSON檔名(cba.json):")
+            with open(json_file_name, 'w',encoding='utf-8') as fp:
+                json.dump(data,fp,sort_keys=False,indent=10,ensure_ascii=False)
+
         elif choose=='0':
             break
         else:
