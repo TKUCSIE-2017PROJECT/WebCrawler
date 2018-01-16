@@ -2,29 +2,6 @@ import requests
 from bs4 import BeautifulSoup
 import sys
 
-def articlepage(prr,pr,ad):
-    print("------------------------------------------------------------------------")
-    payload={
-        'from':ad ,
-        'yes':'yes'
-    }
-    address='https://www.ptt.cc'+ad
-    rs = requests.session()
-    res = rs.post('https://www.ptt.cc/ask/over18',data=payload)
-    res = rs.get(address)
-    soup=BeautifulSoup(res.text,"lxml")
-
-    print(soup.select('#main-content')[0].text)
-    while 1:
-        print('上一層:back  離開:esc')
-        put=input("input>>")
-        if put == "esc" :
-            sys.exit()
-
-        elif put == "back" :
-            changepage(prr,pr)
-        continue
-
 def changepage(pr,ad):
     print("------------------------------------------------------------------------")
     payload={
