@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-#dcard_api_ver1.8.py
+#d_card_api_ver1.8.py
 #1.3breakdate的問題改為breakdate2,3;仍然存在沒有breakdate的問題,待新增:日期搜索範圍,range_From_To_
 #1.4新增搜尋功能,搜尋所有版,可改為搜尋指定版
 #1.7新增以多個關鍵字各自搜尋文章的功能
