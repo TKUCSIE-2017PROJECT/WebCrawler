@@ -61,7 +61,7 @@ def enter(art_url):
         sys.exit(0)
     except:
         pass
-    print(art_url[10:-5])
+    print(article_number)
     article_dict = {
         'number':article_number,
         'userid' :  userid,            
@@ -90,7 +90,7 @@ def enter(art_url):
     article_dict['content'] = article_text
     article_dict['push'] = push_dict
     ####################################
-    total_dict.append(article_dict)
+    page_dict.append(article_dict)
 
 def tofile(foldername):
     if len(total_dict) == 0:
@@ -108,6 +108,9 @@ def tofile(foldername):
 def job(choose):
     global total_dict
     total_dict=[]
+    global page_dict
+    page_dict=[]
+
     choose_url = choose[0]
     delet_num = choose[1]
     get_time()
@@ -122,6 +125,7 @@ def job(choose):
     }
     delet=0
     while(1):
+        page_dict=[]
         print(choose_url)
         url = choose_url
         rs = requests.session()
@@ -157,6 +161,11 @@ def job(choose):
             enter(u)
 
         if OUT == 1:
+            break
+
+        total_dict.append(page_dict)
+
+        if len(page_dict) == 0:
             break
 
         button = soup.select('.wide')
@@ -196,4 +205,5 @@ if __name__ == '__main__':
                 ]
         pool = mp.Pool()
         pool.map(job,ai_list)
+        print("pool done")
         time.sleep(600)
