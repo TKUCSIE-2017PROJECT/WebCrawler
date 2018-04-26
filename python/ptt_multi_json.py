@@ -197,7 +197,8 @@ if __name__ == '__main__':
                 #("https://www.ptt.cc/bbs/movie/index.html",2),          #電影
 
                 #("https://www.ptt.cc/bbs/Boy-Girl/index.html",5),       #男女
-                ("https://www.ptt.cc/bbs/Talk/index.html",3),           #聊天
+                #("https://www.ptt.cc/bbs/Talk/index.html",3),           #聊天
+                ("https://www.ptt.cc/bbs/Gossiping/index.html",5),      #八卦
 
                 ("https://www.ptt.cc/bbs/Food/index.html",4),           #美食
 
