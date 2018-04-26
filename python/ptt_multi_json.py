@@ -90,14 +90,15 @@ def enter(art_url):
     article_dict['content'] = article_text
     article_dict['push'] = push_dict
     ####################################
-    page_dict.append(article_dict)
+    page_check_dict.append(article_dict)
+    total_dict.append(article_dict)
 
 def tofile(foldername):
     if len(total_dict) == 0:
         print(foldername," nothing")
         return 0
     time_detail = str(datetime.datetime.strptime(current_time,"%a %b %d %H:%M:%S %Y"))
-    filname = time_detail[:10]+"_"+time_detail[11:13]+"-"+time_detail[14:16]
+    filname = "".join(time_detail[:10].split("-"))+"".join(time_detail[11:16].split(":"))
 
     print(foldername," complete")
     total = demjson.decode(str(total_dict))   #tofile
@@ -108,8 +109,8 @@ def tofile(foldername):
 def job(choose):
     global total_dict
     total_dict=[]
-    global page_dict
-    page_dict=[]
+    global page_check_dict
+    page_check_dict=[]
 
     choose_url = choose[0]
     delet_num = choose[1]
@@ -125,7 +126,7 @@ def job(choose):
     }
     delet=0
     while(1):
-        page_dict=[]
+        page_chaeck_dict=[]
         print(choose_url)
         url = choose_url
         rs = requests.session()
@@ -163,9 +164,7 @@ def job(choose):
         if OUT == 1:
             break
 
-        total_dict.append(page_dict)
-
-        if len(page_dict) == 0:
+        if len(page_check_dict) == 0:
             break
 
         button = soup.select('.wide')
@@ -178,24 +177,24 @@ if __name__ == '__main__':
     while(1):
         ai_list=[("https://www.ptt.cc/bbs/MakeUp/index.html",4),         #美妝
 
-                ("https://www.ptt.cc/bbs/Japan_Travel/index.html",4),   #旅遊
+                ##("https://www.ptt.cc/bbs/Japan_Travel/index.html",4),   #旅遊
 
-                ("https://www.ptt.cc/bbs/Finance/index.html",2),        #經濟
+                #("https://www.ptt.cc/bbs/Finance/index.html",2),        #經濟
 
-                ("https://www.ptt.cc/bbs/Baseball/index.html",4),       #運動
-                ("https://www.ptt.cc/bbs/NBA/index.html",4),
+                #("https://www.ptt.cc/bbs/Baseball/index.html",4),       #運動
+                #("https://www.ptt.cc/bbs/NBA/index.html",4),
 
-                ("https://www.ptt.cc/bbs/TW_Entertain/index.html",3),   #綜藝
+                #("https://www.ptt.cc/bbs/TW_Entertain/index.html",3),   #綜藝
 
-                ("https://www.ptt.cc/bbs/Tech_Job/index.html",5),       #科技
+                #("https://www.ptt.cc/bbs/Tech_Job/index.html",5),       #科技
 
-                ("https://www.ptt.cc/bbs/C_Chat/index.html",3),         #動漫
+                #("https://www.ptt.cc/bbs/C_Chat/index.html",3),         #動漫
 
-                ("https://www.ptt.cc/bbs/DMM_GAMES/index.html",5),      #遊戲
+                #("https://www.ptt.cc/bbs/DMM_GAMES/index.html",5),      #遊戲
 
-                ("https://www.ptt.cc/bbs/car/index.html",5),            #汽車
+                #("https://www.ptt.cc/bbs/car/index.html",5),            #汽車
 
-                ("https://www.ptt.cc/bbs/movie/index.html",2),          #電影
+                #("https://www.ptt.cc/bbs/movie/index.html",2),          #電影
 
                 ("https://www.ptt.cc/bbs/Boy-Girl/index.html",5),       #男女
 
