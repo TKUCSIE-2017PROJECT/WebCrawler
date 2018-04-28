@@ -49,6 +49,8 @@ def enter(art_url):
         article_number = '.'.join(article_number)
         #作者
         userid = detail[0].text.split(" ")[0]
+        #標題
+        title = detail[2].text
         #時間
         article_time = detail[3].text
         #版名
@@ -64,7 +66,8 @@ def enter(art_url):
     print(article_number)
     article_dict = {
         'number':article_number,
-        'userid' :  userid,            
+        'userid' :  userid,
+        'title' : title,            
         'time' : article_time ,
         'board' : board_name
     }
@@ -125,6 +128,7 @@ def job(choose):
         'yes':'yes'
     }
     delet=0
+    OUT=0
     while(1):
         page_chaeck_dict=[]
         print(choose_url)
@@ -142,7 +146,7 @@ def job(choose):
             for d in range(0,delet_num):
                 del article_title[-1]
             delet = 1
-        OUT=0
+
         length=len(article_title)
         for i in range(length-1,-1,-1):
             each = article_title[i]
