@@ -16,7 +16,9 @@ def get_time():
 
 def enter(art_url):
     try:
+        article_time=''
         userid=''
+        title=''
         article_time=''
         board_name=''
         payload = {
@@ -84,10 +86,11 @@ def tofile(foldername):
     time_detail = str(datetime.datetime.strptime(current_time,"%a %b %d %H:%M:%S %Y"))
     filname = "".join(time_detail[:10].split("-"))+"".join(time_detail[11:16].split(":"))
 
-    print(foldername," complete")
     total = demjson.decode(str(total_dict))   #tofile
     with open(foldername+"/"+filname+".json",'w',encoding='utf-8') as f:
         json.dump(total,f,indent=5, sort_keys=False,ensure_ascii=False)
+
+    print(foldername," complete")
     time.sleep(0.5)
 
 def job(choose):
@@ -154,16 +157,16 @@ def job(choose):
     tofile(folder)
 if __name__ == '__main__':
     while(1):
-        ai_list=[("https://www.ptt.cc/bbs/MakeUp/index.html",4),         #美妝
+        ai_list=[#("https://www.ptt.cc/bbs/MakeUp/index.html",4),         #美妝
 
-                ##("https://www.ptt.cc/bbs/Japan_Travel/index.html",4),   #旅遊
+                #("https://www.ptt.cc/bbs/Japan_Travel/index.html",4),   #旅遊
 
                 #("https://www.ptt.cc/bbs/Finance/index.html",2),        #經濟
 
-                #("https://www.ptt.cc/bbs/Baseball/index.html",4),       #運動
-                #("https://www.ptt.cc/bbs/NBA/index.html",4),
+                ("https://www.ptt.cc/bbs/Baseball/index.html",4),       #運動
+                ("https://www.ptt.cc/bbs/NBA/index.html",4),
 
-                #("https://www.ptt.cc/bbs/TW_Entertain/index.html",3),   #綜藝
+                ("https://www.ptt.cc/bbs/TW_Entertain/index.html",3),   #綜藝
 
                 #("https://www.ptt.cc/bbs/Tech_Job/index.html",5),       #科技
 
@@ -173,9 +176,9 @@ if __name__ == '__main__':
 
                 #("https://www.ptt.cc/bbs/car/index.html",5),            #汽車
 
-                #("https://www.ptt.cc/bbs/movie/index.html",2),          #電影
+                ("https://www.ptt.cc/bbs/movie/index.html",2),          #電影
 
-                #("https://www.ptt.cc/bbs/Boy-Girl/index.html",5),       #男女
+                ("https://www.ptt.cc/bbs/Boy-Girl/index.html",5),       #男女
                 #("https://www.ptt.cc/bbs/Talk/index.html",3),           #聊天
                 #("https://www.ptt.cc/bbs/Gossiping/index.html",5),      #八卦
 
